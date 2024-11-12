@@ -29,6 +29,7 @@ from zerver.actions.user_settings import (
     do_change_user_setting,
     do_regenerate_api_key,
     do_start_email_change_process,
+    do_change_privilege,
 )
 from zerver.actions.users import generate_password_reset_url
 from zerver.decorator import human_users_only
@@ -328,6 +329,10 @@ def json_change_settings(
     ]
     | None = None,
     web_navigate_to_sent_message: Json[bool] | None = None,
+
+    # Minh: adding is_privileged_user here
+    is_privileged_user: Json[bool] | None = None,
+
 ) -> HttpResponse:
     # UserProfile object is being refetched here to make sure that we
     # do not use stale object from cache which can happen when a
@@ -411,6 +416,13 @@ def json_change_settings(
         else:
             # Note that check_change_full_name strips the passed name automatically
             check_change_full_name(user_profile, full_name, user_profile)
+
+    # Minh: added logic to change user settings
+    if is_privileged_user is not None and user_profile.is_privileged_user != is_privileged_user:
+        if not user_profile.is_realm_admin:
+            raise JsonableError(_("Members are not allowed to change privilege status. Please contact an administrator for details."))
+        else:
+            do_change_privilege(user_profile, is_privileged_user, user_profile)
 
     if (
         dense_mode is not None

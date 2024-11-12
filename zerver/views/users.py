@@ -30,6 +30,9 @@ from zerver.actions.user_settings import (
     do_change_avatar_fields,
     do_change_user_delivery_email,
     do_regenerate_api_key,
+    
+    # Minh: add import
+    do_change_privilege,
 )
 from zerver.actions.users import (
     do_change_user_role,
@@ -37,6 +40,7 @@ from zerver.actions.users import (
     do_update_bot_config_data,
     do_update_outgoing_webhook_service,
 )
+
 from zerver.context_processors import get_valid_realm_from_request
 from zerver.decorator import require_member_or_admin, require_realm_admin
 from zerver.forms import PASSWORD_TOO_WEAK_ERROR, CreateUserForm
@@ -211,10 +215,16 @@ def update_user_by_id_api(
     role: Json[RoleParamType] | None = None,
     profile_data: Json[list[ProfileDataElement]] | None = None,
     new_email: str | None = None,
+    # Minh: update api
+    is_privileged_user: str | None = None, 
 ) -> HttpResponse:
     target = access_user_by_id(
         user_profile, user_id, allow_deactivated=True, allow_bots=True, for_admin=True
     )
+
+    # Minh: cast json string to python boolean
+    is_privileged_user = (is_privileged_user == 'true')
+
     return update_user_backend(
         request,
         user_profile,
@@ -223,6 +233,8 @@ def update_user_by_id_api(
         role=role,
         profile_data=profile_data,
         new_email=new_email,
+        # Minh: update api
+        is_privileged_user=is_privileged_user,
     )
 
 
@@ -237,10 +249,16 @@ def update_user_by_email_api(
     role: Json[RoleParamType] | None = None,
     profile_data: Json[list[ProfileDataElement]] | None = None,
     new_email: str | None = None,
+    # Minh: update api
+    is_privileged_user: str | None = None,
 ) -> HttpResponse:
     target = access_user_by_email(
         user_profile, email, allow_deactivated=True, allow_bots=True, for_admin=True
     )
+
+    # Minh: cast json string to python boolean
+    is_privileged_user = (is_privileged_user == 'true')
+
     return update_user_backend(
         request,
         user_profile,
@@ -249,6 +267,8 @@ def update_user_by_email_api(
         role=role,
         profile_data=profile_data,
         new_email=new_email,
+        # Minh: update api
+        is_privileged_user=is_privileged_user,
     )
 
 
@@ -261,12 +281,16 @@ def update_user_backend(
     role: Json[RoleParamType] | None = None,
     profile_data: Json[list[ProfileDataElement]] | None = None,
     new_email: str | None = None,
+
+    # Minh: add param to update function
+    is_privileged_user: bool | None = None,
+
 ) -> HttpResponse:
     if new_email is not None and (
         not user_profile.can_change_user_emails or not user_profile.is_realm_admin
     ):
         raise JsonableError(_("User not authorized to change user emails"))
-
+    
     if role is not None and target.role != role:
         # Require that the current user has permissions to
         # grant/remove the role in question.
@@ -295,6 +319,12 @@ def update_user_backend(
         # We don't respect `name_changes_disabled` here because the request
         # is on behalf of the administrator.
         check_change_full_name(target, full_name, user_profile)
+
+    # Minh: logic for updating privileges
+    if is_privileged_user is not None and target.is_privileged_user != is_privileged_user:
+        if not user_profile.is_realm_admin:
+            raise JsonableError(_("Members are not allowed to change privilege, contact an administrator."))
+        do_change_privilege(target, is_privileged_user, user_profile)
 
     if profile_data is not None:
         clean_profile_data: list[ProfileDataElementUpdateDict] = []

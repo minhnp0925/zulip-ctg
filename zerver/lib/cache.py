@@ -457,6 +457,8 @@ realm_user_dict_fields: list[str] = [
     "bot_type",
     "long_term_idle",
     "email_address_visibility",
+    # Minh: add dict field
+    "is_privileged_user",
 ]
 
 

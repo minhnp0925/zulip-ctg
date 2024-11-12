@@ -339,6 +339,10 @@ class UserBaseSettings(models.Model):
         wildcard_mentions_notify=bool,
     )
 
+    # Minh:
+    # Custom code for hiding privileged users message
+    is_privileged_user = models.BooleanField(default=False, help_text="Hide user from normal members")
+
     modern_settings = dict(
         # Add new general settings here.
         display_emoji_reaction_users=bool,
@@ -461,7 +465,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, UserBaseSettings):
     # Foreign key to the Recipient object for PERSONAL type messages to this user.
     recipient = models.ForeignKey("zerver.Recipient", null=True, on_delete=models.SET_NULL)
 
-    INACCESSIBLE_USER_NAME = gettext_lazy("Unknown user")
+    INACCESSIBLE_USER_NAME = gettext_lazy("Hidden user")
     # The user's name.  We prefer the model of a full_name
     # over first+last because cultures vary on how many
     # names one has, whether the family name is first or last, etc.
@@ -931,7 +935,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, UserBaseSettings):
             raise PasswordTooWeakError
 
         super().set_password(password)
-
 
 class PasswordTooWeakError(Exception):
     pass

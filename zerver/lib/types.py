@@ -328,6 +328,9 @@ class RawUserDict(TypedDict):
     long_term_idle: bool
     email_address_visibility: int
 
+    # Minh: add field here
+    is_privileged_user: bool
+
 
 class RemoteRealmDictValue(TypedDict):
     can_push: bool

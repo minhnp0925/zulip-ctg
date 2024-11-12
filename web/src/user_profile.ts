@@ -983,6 +983,8 @@ export function show_edit_user_info_modal(user_id: number, $container: JQuery): 
         user_role_values: settings_config.user_role_values,
         disable_role_dropdown: person.is_owner && !current_user.is_owner,
         owner_is_only_user_in_organization: people.get_active_human_count() === 1,
+        // # Minh: added data to render on form
+        is_privileged_user: person.is_privileged_user,
         is_active,
     });
 
@@ -1054,12 +1056,17 @@ export function show_edit_user_info_modal(user_id: number, $container: JQuery): 
         const $full_name = $("#edit-user-form").find("input[name='full_name']");
         const profile_data = get_human_profile_data(fields_user_pills);
 
+        // # Minh: adding is_privileged_user value here
+        const $is_privileged_user = Boolean($("#edit-user-form").find("input[name='is_privileged_user']").prop("checked"));
+        
         const url = "/json/users/" + encodeURIComponent(user_id);
         const data = {
             full_name: $full_name.val(),
             role: JSON.stringify(role),
             profile_data: JSON.stringify(profile_data),
-        };
+            // # Minh: adding field to request data
+            is_privileged_user: $is_privileged_user,
+        }
 
         const $submit_btn = $("#user-profile-modal .dialog_submit_button");
         const $cancel_btn = $("#user-profile-modal .dialog_exit_button");

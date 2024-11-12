@@ -299,6 +299,7 @@ def access_user_common(
     return target
 
 
+
 def access_user_by_id(
     user_profile: UserProfile,
     target_user_id: int,
@@ -609,6 +610,9 @@ class APIUserDict(TypedDict):
     is_system_bot: NotRequired[bool]
     max_message_id: NotRequired[int]
 
+    # Minh: add field to user dict
+    is_privileged_user: bool | None
+
 
 def format_user_row(
     realm_id: int,
@@ -653,6 +657,9 @@ def format_user_row(
         if acting_user is None
         else row["date_joined"].isoformat(timespec="minutes"),
         delivery_email=delivery_email,
+        
+        # Minh: add field to dict to render
+        is_privileged_user=row["is_privileged_user"]
     )
 
     if acting_user is None:
@@ -737,6 +744,11 @@ def check_user_can_access_all_users(acting_user: UserProfile | None) -> bool:
 def check_can_access_user(
     target_user: UserProfile, user_profile: UserProfile | None = None
 ) -> bool:
+
+    print("Checking access privileges:")
+    print("target user:", target_user.id, target_user.full_name)
+    print("current user: ", user_profile.id, user_profile.full_name)
+
     if not user_access_restricted_in_realm(target_user):
         return True
 
@@ -997,6 +1009,9 @@ def user_profile_to_user_row(user_profile: UserProfile) -> RawUserDict:
         bot_type=user_profile.bot_type,
         long_term_idle=user_profile.long_term_idle,
         email_address_visibility=user_profile.email_address_visibility,
+
+        # Minh: added field to dict
+        is_privileged_user=user_profile.is_privileged_user,
     )
 
 

@@ -125,7 +125,11 @@ export function get_current_values($inputs: JQuery): Record<string, unknown> {
                 // good enough for checking if something has changed,
                 // but not appropriate for many other potential uses.
                 current_values[property_name] = $(this).find(".pill-value").text();
-            } else {
+            } else if (this instanceof HTMLInputElement && this.type === "checkbox") {
+                // # Minh: Handle checkbox state
+                current_values[property_name] = $(this).prop("checked");
+            }
+            else {
                 current_values[property_name] = $(this).val();
             }
         }

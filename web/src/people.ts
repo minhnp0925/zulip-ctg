@@ -74,7 +74,7 @@ export function init(): void {
     // This maintains a set of ids of people with same full names.
     duplicate_full_name_data = new FoldDict();
 
-    INACCESSIBLE_USER_NAME = $t({defaultMessage: "Unknown user"});
+    INACCESSIBLE_USER_NAME = $t({defaultMessage: "Hidden user"});
 }
 
 // WE INITIALIZE DATA STRUCTURES HERE!
@@ -1481,6 +1481,9 @@ export function make_user(user_id: number, email: string, full_name: string): Us
         is_bot: false,
         is_moderator: false,
         is_billing_admin: false,
+
+        // # Minh: add field here although idrk what this does
+        is_privileged_user: false,
         // We explicitly don't set `avatar_url` for fake person objects so that fallback code
         // will ask the server or compute a gravatar URL only once we need the avatar URL,
         // it's important for performance that we not hash every user's email to get gravatar URLs.

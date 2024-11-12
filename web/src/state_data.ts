@@ -98,6 +98,9 @@ export const user_schema = z
         // used for inaccessible user objects.
         is_inaccessible_user: z.optional(z.boolean()),
         is_system_bot: z.optional(z.literal(true)),
+
+        // # Minh: add field to user dict
+        is_privileged_user: z.boolean(),
     })
     .and(
         z.discriminatedUnion("is_bot", [

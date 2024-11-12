@@ -40,6 +40,10 @@ from zerver.models import (
     UserPresence,
     UserProfile,
 )
+
+# Minh: added import
+from zerver.models.users import active_user_ids
+
 from zerver.models.clients import get_client
 from zerver.models.realm_audit_logs import AuditLogEventType
 from zerver.models.users import bot_owner_user_ids, get_user_profile_by_id
@@ -378,6 +382,35 @@ def notify_avatar_url_change(user_profile: UserProfile) -> None:
         get_user_ids_who_can_access_user(user_profile),
     )
 
+# Minh: Added handler for is_privileged_user
+def do_change_privilege(
+    user_profile: UserProfile,
+    value: bool,
+    acting_user: UserProfile | None,
+) -> None:
+    user_profile.is_privileged_user = value
+    print("Update field: is_privileged_user")
+    print("User profile:", user_profile.full_name)
+    user_profile.save(update_fields=["is_privileged_user"])
+    event_time = timezone_now()
+    RealmAuditLog.objects.create(
+        realm = user_profile.realm,
+        modified_user = user_profile,
+        event_type = AuditLogEventType.USER_SETTING_CHANGED,
+        extra_data = {"is_privileged_user": value},
+        event_time = event_time,
+        acting_user = acting_user,
+    )
+
+    event = {
+        "type": "user_settings",
+        "op": "update",
+        "property": "is_privileged_user",
+        "value": value,
+    }
+    
+    realm = user_profile.realm
+    send_event_on_commit(realm, event, active_user_ids(realm.id))
 
 @transaction.atomic(savepoint=False)
 def do_change_avatar_fields(
@@ -523,6 +556,8 @@ def do_change_user_setting(
             event,
             list(user_profile.realm.get_human_admin_users().values_list("id", flat=True)),
         )
+
+    
 
     # Updates to the time zone display setting are sent to all users
     if setting_name == "timezone":
