@@ -1,11 +1,11 @@
 import $ from "jquery";
 
-import * as blueslip from "./blueslip";
-import type {CallWidgetExtraData, CallWidgetOutboundData} from "./call_widget";
-import * as message_lists from "./message_lists";
-import type {Message} from "./message_store";
-import type {Event, PollWidgetExtraData, PollWidgetOutboundData} from "./poll_widget";
-import type {TodoWidgetOutboundData} from "./todo_widget";
+import * as blueslip from "./blueslip.ts";
+import type {CallWidgetExtraData, CallWidgetOutboundData} from "./call_widget.ts";
+import * as message_lists from "./message_lists.ts";
+import type {Message} from "./message_store.ts";
+import type {Event, PollWidgetExtraData, PollWidgetOutboundData} from "./poll_widget.ts";
+import type {TodoWidgetOutboundData} from "./todo_widget.ts";
 
 // TODO: This ZFormExtraData type should be moved to web/src/zform.js when it will be migrated
 type ZFormExtraData = {
