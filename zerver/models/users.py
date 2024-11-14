@@ -339,10 +339,6 @@ class UserBaseSettings(models.Model):
         wildcard_mentions_notify=bool,
     )
 
-    # Minh:
-    # Custom code for hiding privileged users message
-    is_privileged_user = models.BooleanField(default=False, help_text="Hide user from normal members")
-
     modern_settings = dict(
         # Add new general settings here.
         display_emoji_reaction_users=bool,
@@ -556,6 +552,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, UserBaseSettings):
         ],
     }
 
+    # Minh:
+    # Custom code for hiding privileged users message
+    is_privileged_user = models.BooleanField(default=False, help_text="Hide user from normal members")
+    
     # Whether the user has been "soft-deactivated" due to weeks of inactivity.
     # For these users we avoid doing UserMessage table work, as an optimization
     # for large Zulip organizations with lots of single-visit users.

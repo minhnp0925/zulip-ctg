@@ -680,6 +680,8 @@ class Realm(models.Model):  # type: ignore[django-manager-missing] # django-stub
             default_group_name=SystemGroups.ADMINISTRATORS,
             id_field_name="create_multiuse_invite_group_id",
         ),
+
+        # Minh: added ADMINISTRATORS group here to allow only admins+ to access all users
         can_access_all_users_group=GroupPermissionSetting(
             require_system_group=True,
             allow_internet_group=False,
@@ -688,7 +690,7 @@ class Realm(models.Model):  # type: ignore[django-manager-missing] # django-stub
             allow_everyone_group=True,
             default_group_name=SystemGroups.EVERYONE,
             id_field_name="can_access_all_users_group_id",
-            allowed_system_groups=[SystemGroups.EVERYONE, SystemGroups.MEMBERS],
+            allowed_system_groups=[SystemGroups.EVERYONE, SystemGroups.MEMBERS, SystemGroups.ADMINISTRATORS],
         ),
         can_add_custom_emoji_group=GroupPermissionSetting(
             require_system_group=False,

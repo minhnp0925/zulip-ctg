@@ -383,6 +383,9 @@ def notify_avatar_url_change(user_profile: UserProfile) -> None:
     )
 
 # Minh: Added handler for is_privileged_user
+def send_privilege_update_events(user_profile: UserProfile, old_visibility: bool, new_visibility: bool) -> None:
+    pass
+
 def do_change_privilege(
     user_profile: UserProfile,
     value: bool,
@@ -401,16 +404,6 @@ def do_change_privilege(
         event_time = event_time,
         acting_user = acting_user,
     )
-
-    event = {
-        "type": "user_settings",
-        "op": "update",
-        "property": "is_privileged_user",
-        "value": value,
-    }
-    
-    realm = user_profile.realm
-    send_event_on_commit(realm, event, active_user_ids(realm.id))
 
 @transaction.atomic(savepoint=False)
 def do_change_avatar_fields(

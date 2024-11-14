@@ -1404,7 +1404,9 @@ export function add_active_user(person: User): void {
 
 export const is_person_active = (user_id: number): boolean => {
     if (!people_by_user_id_dict.has(user_id)) {
-        blueslip.error("No user found", {user_id});
+        // # Minh: Privileged users may be subscribed but not accessible, just return false here
+        return false;
+        // blueslip.error("No user found", {user_id});
     }
 
     if (cross_realm_dict.has(user_id)) {

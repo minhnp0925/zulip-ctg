@@ -458,6 +458,7 @@ export function initialize_everything(state_data) {
     let date_joined;
     if (!page_params.is_spectator) {
         const user = people.get_by_user_id(current_user.user_id);
+        // const user = people.maybe_get_user_by_id(current_user.user_id);
         date_joined = user.date_joined;
     } else {
         // Spectators don't have an account, so we just prevent their

@@ -1167,6 +1167,20 @@ def do_send_messages(
                 send_request.stream.first_message_id = send_request.message.id
                 send_request.stream.save(update_fields=["first_message_id"])
 
+            # Minh: hiding profile details here by setting "user_ids_without_access_to_sender" event param if access is forbidden
+            # NOTE: this is not working out as I thought it would, might need to check what user_ids_without_access_to_sender
+            #       does in the event handler
+            # sender = send_request.message.sender
+            # if sender.is_privileged_user:
+            #     user_ids_who_can_access_sender = get_user_ids_who_can_access_user(
+            #         send_request.message.sender
+            #     )
+            #     user_ids_receiving_event = {user["id"] for user in users}
+            #     user_ids_without_access_to_sender = user_ids_receiving_event - set(
+            #         user_ids_who_can_access_sender
+            #     )
+            #     event["user_ids_without_access_to_sender"] = list(user_ids_without_access_to_sender)
+
             # Performance note: This check can theoretically do
             # database queries in a loop if many messages are being
             # sent via a single do_send_messages call.

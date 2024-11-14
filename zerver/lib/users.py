@@ -727,7 +727,9 @@ def check_user_can_access_all_users(acting_user: UserProfile | None) -> bool:
         # have very limited access to the user already.
         return True
 
-    if not acting_user.is_guest:
+    # Minh: changing check logic
+    #if not acting_user.is_guest:
+    if acting_user.is_realm_admin:
         return True
 
     realm = acting_user.realm
@@ -749,6 +751,14 @@ def check_can_access_user(
     print("target user:", target_user.id, target_user.full_name)
     print("current user: ", user_profile.id, user_profile.full_name)
 
+    # Minh: User can always access their own profile no matter what
+    if target_user.id == user_profile.id:
+        return True
+    
+    # Minh: forbids access to privileged users
+    if target_user.is_privileged_user and not user_profile.is_realm_admin:
+        return False
+
     if not user_access_restricted_in_realm(target_user):
         return True
 
@@ -756,9 +766,6 @@ def check_can_access_user(
         return True
 
     assert user_profile is not None
-
-    if target_user.id == user_profile.id:
-        return True
 
     # These include Subscription objects for streams as well as group DMs.
     subscribed_recipient_ids = Subscription.objects.filter(
@@ -856,6 +863,16 @@ def get_user_ids_who_can_access_user(target_user: UserProfile) -> list[int]:
     # this function is used to get users to send events and to
     # send presence update.
     realm = target_user.realm
+
+    # Minh: is_privileged_user will override this, only allowing admins/owners to access
+    if target_user.is_privileged_user:
+        admin_user_ids = UserProfile.objects.filter(
+            realm=realm,
+            is_active=True,
+            role__in=[UserProfile.ROLE_REALM_ADMINISTRATOR, UserProfile.ROLE_REALM_OWNER],
+        ).values_list("id", flat=True)
+        return list(admin_user_ids)
+
     if not user_access_restricted_in_realm(target_user):
         return active_user_ids(realm.id)
 
@@ -1066,6 +1083,8 @@ def get_data_for_inaccessible_user(realm: Realm, user_id: int) -> APIUserDict:
         delivery_email=None,
         avatar_url=get_avatar_for_inaccessible_user(),
         profile_data={},
+        # Minh: added field
+        is_privileged_user=True,
     )
     return user_dict
 
@@ -1088,6 +1107,14 @@ def get_accessible_user_ids(
         | users_involved_in_dms_dict[user_profile.id]
     )
 
+    # Minh: Exclude privileged users from accessible_user_ids if the current user is not an admin/owner.
+    if not check_user_can_access_all_users(user_profile):
+        privileged_user_ids = UserProfile.objects.filter(
+            realm=realm, is_privileged_user=True
+        ).values_list("id", flat=True)
+        accessible_user_ids -= set(privileged_user_ids)
+        accessible_user_ids.add(user_profile.id) # User must always get access to their own profile lol
+
     return list(accessible_user_ids)
 
 
@@ -1099,6 +1126,8 @@ def get_user_dicts_in_realm(
 
     all_user_dicts = get_realm_user_dicts(realm.id)
     if check_user_can_access_all_users(user_profile):
+        # Minh: Debug
+        print("Access all:", all_user_dicts)
         return (all_user_dicts, [])
 
     assert user_profile is not None
@@ -1114,6 +1143,9 @@ def get_user_dicts_in_realm(
         else:
             inaccessible_user_dicts.append(get_data_for_inaccessible_user(realm, user_dict["id"]))
 
+    # Minh: Debug
+    print("Accessible: ", accessible_user_dicts)
+    print("Inaccessible: ", inaccessible_user_dicts)
     return (accessible_user_dicts, inaccessible_user_dicts)
 
 

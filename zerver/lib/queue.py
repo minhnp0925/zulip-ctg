@@ -135,6 +135,8 @@ class QueueClient(Generic[ChannelT], ABC):
         self.ensure_queue(queue_name, do_publish)
 
     def json_publish(self, queue_name: str, body: Mapping[str, Any]) -> None:
+        # Minh: debug
+        # print("json data:", body)
         data = orjson.dumps(body)
         try:
             self.publish(queue_name, data)
