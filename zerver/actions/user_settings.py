@@ -382,18 +382,53 @@ def notify_avatar_url_change(user_profile: UserProfile) -> None:
         get_user_ids_who_can_access_user(user_profile),
     )
 
-# Minh: Added handler for is_privileged_user
-def send_privilege_update_events(user_profile: UserProfile, old_visibility: bool, new_visibility: bool) -> None:
-    pass
+# Minh: events fired by do_change_privilege: remove user if privilege = True and user is not self/admins
+def send_events_for_privilege_change(user_profile: UserProfile, privilege: bool) -> None:
+    realm = user_profile.realm
 
+    if privilege:
+        # User is now privileged: Remove access for all users except admins and self
+        user_ids_who_lose_access = (
+            set(active_user_ids(realm.id))  # All active users
+            - set(get_user_ids_who_can_access_user(user_profile))  # Users who can access (admins and self)
+        )
+
+        # Send `remove` event for the privileged user to those who lose access
+        event_remove_user = dict(
+            type="realm_user",
+            op="remove",
+            person=dict(user_id=user_profile.id, full_name=str(UserProfile.INACCESSIBLE_USER_NAME)),
+        )
+        send_event_on_commit(realm, event_remove_user, list(user_ids_who_lose_access))
+
+    else:
+        # User is no longer privileged: Notify users who should regain access
+        user_ids_who_gain_access = (
+            set(get_user_ids_who_can_access_user(user_profile))  # New set of users who can access
+            - {user_profile.id}  # Exclude the user themselves (they already have access)
+        )
+
+        # Send `add` event for the user profile to those who gain access
+        event_update_user = dict(
+            type="realm_user",
+            op="update",
+            person=dict(user_id=user_profile.id, is_privileged_user=False, name=user_profile.full_name)
+        )
+        send_event_on_commit(realm, event_update_user, list(user_ids_who_gain_access))
+        
+
+# Minh: Added action for is_privileged_user
 def do_change_privilege(
     user_profile: UserProfile,
     value: bool,
     acting_user: UserProfile | None,
 ) -> None:
     user_profile.is_privileged_user = value
+    
+    # Minh: Debug
     print("Update field: is_privileged_user")
     print("User profile:", user_profile.full_name)
+    
     user_profile.save(update_fields=["is_privileged_user"])
     event_time = timezone_now()
     RealmAuditLog.objects.create(
@@ -404,6 +439,9 @@ def do_change_privilege(
         event_time = event_time,
         acting_user = acting_user,
     )
+
+    # Send update events
+    send_events_for_privilege_change(user_profile=user_profile, privilege=value)
 
 @transaction.atomic(savepoint=False)
 def do_change_avatar_fields(

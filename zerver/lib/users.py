@@ -871,8 +871,9 @@ def get_user_ids_who_can_access_user(target_user: UserProfile) -> list[int]:
             is_active=True,
             role__in=[UserProfile.ROLE_REALM_ADMINISTRATOR, UserProfile.ROLE_REALM_OWNER],
         ).values_list("id", flat=True)
-        return list(admin_user_ids)
-
+        # Ensure the target user is included
+        return list(admin_user_ids) + [target_user.id] if target_user.id not in admin_user_ids else list(admin_user_ids)
+    
     if not user_access_restricted_in_realm(target_user):
         return active_user_ids(realm.id)
 

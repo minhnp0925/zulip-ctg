@@ -195,4 +195,16 @@ export const update_person = function update(person) {
             settings_exports.remove_export_consent_data_and_redraw(person.user_id);
         }
     }
+
+    // # Minh: add event update logic for is_privileged_user
+    if (Object.hasOwn(person, "is_privileged_user")) {
+        person_obj.is_privileged_user = person.is_privileged_user;
+        if (!person.is_privileged_user) {
+            people.add_active_user(person_obj);
+            message_live_update.update_user_full_name(
+                person.user_id,
+                person.name
+            );
+        }
+    }
 };
