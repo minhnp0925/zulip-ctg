@@ -1049,8 +1049,12 @@ div.focused-message-list {
     text-align: center;
 }
 
+/*
+# Minh: added css to hide user panel button
+*/
 .hide-streamlist-toggle-visibility,
-.hide-navbar-buttons-visibility {
+.hide-navbar-buttons-visibility,
+.hide-user-panel-visibility {
     visibility: hidden;
 }
 

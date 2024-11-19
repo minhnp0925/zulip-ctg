@@ -172,6 +172,8 @@ def update_realm(
     ] = None,
     enable_guest_user_indicator: Json[bool] | None = None,
     can_access_all_users_group: Json[GroupSettingChangeRequest] | None = None,
+    # Minh: flag to hide user panel button 
+    hide_user_panel_button: Json[bool] | None = None,
 ) -> HttpResponse:
     # Realm object is being refetched here to make sure that we
     # do not use stale object from cache which can happen when a

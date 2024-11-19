@@ -48,6 +48,8 @@ const admin_settings_label = {
         defaultMessage: "Send weekly digest emails to inactive users",
     }),
     realm_default_code_block_language: $t({defaultMessage: "Default language for code blocks"}),
+    // # Minh: label for hide_user_panel_button setting
+    realm_hide_user_panel_button: $t({defaultMessage: "Hide user panel button"}),
 
     // Organization permissions
     realm_require_unique_names: $t({defaultMessage: "Require unique names"}),
@@ -157,6 +159,8 @@ export function build_page() {
         realm_night_logo_source: realm.realm_night_logo_source,
         realm_night_logo_url: realm.realm_night_logo_url,
         realm_mandatory_topics: realm.realm_mandatory_topics,
+        // # Minh: hide_user_panel_button setting
+        realm_hide_user_panel_button: realm.realm_hide_user_panel_button,
         realm_send_welcome_emails: realm.realm_send_welcome_emails,
         realm_message_content_allowed_in_email_notifications:
             realm.realm_message_content_allowed_in_email_notifications,

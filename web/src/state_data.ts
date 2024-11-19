@@ -373,6 +373,8 @@ export const realm_schema = z.object({
     realm_logo_source: z.string(),
     realm_logo_url: z.string(),
     realm_mandatory_topics: z.boolean(),
+    // # Minh: realm_hide_user_panel_button data
+    realm_hide_user_panel_button: z.boolean(),
     realm_message_content_allowed_in_email_notifications: z.boolean(),
     realm_message_content_edit_limit_seconds: z.number().nullable(),
     realm_message_content_delete_limit_seconds: z.number().nullable(),

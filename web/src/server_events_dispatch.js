@@ -33,6 +33,8 @@ import * as muted_users_ui from "./muted_users_ui";
 import * as narrow_state from "./narrow_state";
 import * as narrow_title from "./narrow_title";
 import * as navbar_alerts from "./navbar_alerts";
+// # Minh: import navbar ui functions
+import * as navbar_ui from "./navbar_ui";
 import * as onboarding_steps from "./onboarding_steps";
 import * as overlays from "./overlays";
 import * as peer_data from "./peer_data";
@@ -235,6 +237,8 @@ export function dispatch_normal_event(event) {
                 invite_to_realm_policy: noop,
                 invite_required: noop,
                 mandatory_topics: noop,
+                // # Minh: hide_user_panel_button
+                hide_user_panel_button: navbar_ui.update_user_panel_button_display,
                 message_content_edit_limit_seconds: noop,
                 message_content_delete_limit_seconds: noop,
                 move_messages_between_streams_limit_seconds: noop,
