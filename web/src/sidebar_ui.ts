@@ -16,7 +16,7 @@ import * as resize from "./resize";
 import * as settings_config from "./settings_config";
 import * as settings_data from "./settings_data";
 import * as spectators from "./spectators";
-import {current_user} from "./state_data";
+import {current_user, realm} from "./state_data";
 import * as ui_util from "./ui_util";
 import {user_settings} from "./user_settings";
 
@@ -27,11 +27,12 @@ function save_sidebar_toggle_status(): void {
 }
 
 export function restore_sidebar_toggle_status(): void {
+    // # Minh: change logic of sidebar status
     const ls = localstorage();
     if (ls.get("left-sidebar")) {
         $("body").addClass("hide-left-sidebar");
     }
-    if (ls.get("right-sidebar")) {
+    if (ls.get("right-sidebar") || realm.realm_hide_user_panel_button) {
         $("body").addClass("hide-right-sidebar");
     }
 }
