@@ -1690,6 +1690,12 @@ export function my_current_user_id(): number {
     return my_user_id;
 }
 
+// # Minh: function to get self avatar
+export function my_avatar_url(): string {
+    const person = get_by_user_id(my_user_id);
+    return small_avatar_url_for_person(person);
+}
+
 export function my_custom_profile_data(field_id: number): ProfileDatum | null | undefined {
     if (field_id === undefined) {
         blueslip.error("Undefined field id");

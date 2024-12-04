@@ -1,6 +1,7 @@
 import $ from "jquery";
 
 import * as blueslip from "./blueslip";
+import type {CallWidgetExtraData, CallWidgetOutboundData} from "./call_widget";
 import * as message_lists from "./message_lists";
 import type {Message} from "./message_store";
 import type {Event, PollWidgetExtraData, PollWidgetOutboundData} from "./poll_widget";
@@ -19,7 +20,7 @@ type TodoWidgetExtraData = {
     tasks?: {task: string; desc: string}[] | undefined;
 };
 
-type WidgetExtraData = PollWidgetExtraData | TodoWidgetExtraData | ZFormExtraData | null;
+type WidgetExtraData = PollWidgetExtraData | TodoWidgetExtraData | ZFormExtraData | CallWidgetExtraData | null;
 
 type WidgetOptions = {
     widget_type: string;
@@ -27,16 +28,18 @@ type WidgetOptions = {
     events: Event[];
     $row: JQuery;
     message: Message;
+    // # Minh: add call data to post to server
     post_to_server: (data: {
         msg_type: string;
-        data: string | PollWidgetOutboundData | TodoWidgetOutboundData;
+        data: string | PollWidgetOutboundData | TodoWidgetOutboundData | CallWidgetOutboundData;
     }) => void;
 };
 
 type WidgetValue = Record<string, unknown> & {
     activate: (data: {
         $elem: JQuery;
-        callback: (data: string | PollWidgetOutboundData | TodoWidgetOutboundData) => void;
+        // # Minh: add call outbound data to callback
+        callback: (data: string | PollWidgetOutboundData | TodoWidgetOutboundData | CallWidgetOutboundData) => void;
         message: Message;
         extra_data: WidgetExtraData;
     }) => (events: Event[]) => void;
@@ -69,9 +72,9 @@ export function activate(in_opts: WidgetOptions): void {
         blueslip.warn("unknown widget_type", widget_type);
         return;
     }
-
+    // # Minh: adding call outbound data
     const callback = function (
-        data: string | PollWidgetOutboundData | TodoWidgetOutboundData,
+        data: string | PollWidgetOutboundData | TodoWidgetOutboundData | CallWidgetOutboundData,
     ): void {
         post_to_server({
             msg_type: "widget",

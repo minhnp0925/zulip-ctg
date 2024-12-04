@@ -1,6 +1,7 @@
 import {z} from "zod";
 
 import * as blueslip from "./blueslip";
+import type {CallWidgetOutboundData } from "./call_widget";
 import * as channel from "./channel";
 import type {MessageList} from "./message_list";
 import * as message_store from "./message_store";
@@ -34,6 +35,15 @@ const poll_widget_extra_data_schema = z
     })
     .nullable();
 
+// # Minh: data schema for call widget
+const call_widget_extra_data_schema = z
+    .object({
+        room_id: z.string().optional(),
+        room_name: z.string().optional(),
+        audio_only: z.boolean().optional(),
+    })
+    .nullable();
+
 const widget_data_event_schema = z.object({
     sender_id: z.number(),
     data: z.discriminatedUnion("widget_type", [
@@ -42,6 +52,10 @@ const widget_data_event_schema = z.object({
         z.object({
             widget_type: z.literal("todo"),
             extra_data: todo_widget_extra_data_schema,
+        }),
+        z.object({
+            widget_type: z.literal("call"),
+            extra_data: call_widget_extra_data_schema,
         }),
     ]),
 });
@@ -62,7 +76,7 @@ const submessages_event_schema = z
 
 type SubmessageEvents = z.infer<typeof submessages_event_schema>;
 
-export function get_message_events(message: Message): SubmessageEvents | undefined {
+export function get_message_events(message: Message): SubmessageEvents | undefined {    
     if (message.locally_echoed) {
         return undefined;
     }
@@ -213,11 +227,11 @@ export function make_server_callback(
     message_id: number,
 ): (opts: {
     msg_type: string;
-    data: string | PollWidgetOutboundData | TodoWidgetOutboundData;
+    data: string | PollWidgetOutboundData | TodoWidgetOutboundData | CallWidgetOutboundData;
 }) => void {
     return function (opts: {
         msg_type: string;
-        data: string | PollWidgetOutboundData | TodoWidgetOutboundData;
+        data: string | PollWidgetOutboundData | TodoWidgetOutboundData | CallWidgetOutboundData;
     }) {
         const url = "/json/submessage";
 

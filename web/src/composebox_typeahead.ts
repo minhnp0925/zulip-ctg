@@ -564,6 +564,14 @@ export const slash_commands = [
         placeholder: $t({defaultMessage: "Task list"}),
         info: $t({defaultMessage: "Create a collaborative to-do list"}),
     },
+    // Minh: added /call to slash commands
+    {
+        text: $t({defaultMessage: "/call"}),
+        name: "call",
+        aliases: "",
+        placeholder: "{\"room_name\":\"New Meeting\"}",
+        info: $t({defaultMessage: "Create a call on Jitsi Meet"}),
+    },
 ];
 
 export const all_slash_commands: SlashCommand[] = [...dev_only_slash_commands, ...slash_commands];

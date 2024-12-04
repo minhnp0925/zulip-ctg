@@ -53,3 +53,8 @@ export type UpdateMessageEvent = {
 };
 
 export type HTMLSelectOneElement = HTMLSelectElement & {type: "select-one"};
+
+export const JitsiMeetExternalAPI_schema = z.object({
+    domain: z.string(),
+    
+})

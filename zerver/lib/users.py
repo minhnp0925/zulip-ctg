@@ -1128,7 +1128,7 @@ def get_user_dicts_in_realm(
     all_user_dicts = get_realm_user_dicts(realm.id)
     if check_user_can_access_all_users(user_profile):
         # Minh: Debug
-        print("Access all:", all_user_dicts)
+        # print("Access all:", all_user_dicts)
         return (all_user_dicts, [])
 
     assert user_profile is not None
@@ -1145,8 +1145,8 @@ def get_user_dicts_in_realm(
             inaccessible_user_dicts.append(get_data_for_inaccessible_user(realm, user_dict["id"]))
 
     # Minh: Debug
-    print("Accessible: ", accessible_user_dicts)
-    print("Inaccessible: ", inaccessible_user_dicts)
+    # print("Accessible: ", accessible_user_dicts)
+    # print("Inaccessible: ", inaccessible_user_dicts)
     return (accessible_user_dicts, inaccessible_user_dicts)
 
 

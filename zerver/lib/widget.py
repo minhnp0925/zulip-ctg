@@ -1,13 +1,15 @@
 import json
 import re
 from typing import Any
+import uuid
 
 from zerver.lib.message import SendMessageRequest
 from zerver.models import Message, SubMessage
 
+# Minh: implementing call widget
 
 def get_widget_data(content: str) -> tuple[str | None, Any]:
-    valid_widget_types = ["poll", "todo"]
+    valid_widget_types = ["poll", "todo", "call"] # Minh: adding "call" to supported widget types
     tokens = re.split(r"\s+|\n+", content)
 
     # tokens[0] will always exist
@@ -42,6 +44,29 @@ def parse_poll_extra_data(content: str) -> Any:
     return extra_data
 
 
+# Minh: parse call data, for now just parse everything as room id
+def parse_call_extra_data(content: str) -> Any:
+    content = content.strip()
+    try:
+        data = json.loads(content)
+        print("Call data:", data)
+        room_name = data.get("room_name", "New meeting")
+        audio_only = data.get("audio_only", False)
+    except json.JSONDecodeError:
+        room_name = "New meeting"
+        audio_only = False
+
+    room_id = str(uuid.uuid4())
+
+    print("Room id:", room_id)
+
+    extra_data = {
+        "room_id": room_id,
+        "room_name": room_name,
+        "audio_only": audio_only,
+    }
+    return extra_data
+
 def parse_todo_extra_data(content: str) -> Any:
     # This is used to extract the task list title from the todo command.
     # The command '/todo Title' will pre-set the task list title
@@ -74,9 +99,11 @@ def parse_todo_extra_data(content: str) -> Any:
 def get_extra_data_from_widget_type(content: str, widget_type: str | None) -> Any:
     if widget_type == "poll":
         return parse_poll_extra_data(content)
-    else:
+    elif widget_type == "todo":
         return parse_todo_extra_data(content)
-
+    # Minh: fn call to parse room id
+    else:
+        return parse_call_extra_data(content)
 
 def do_widget_post_save_actions(send_request: SendMessageRequest) -> None:
     """
