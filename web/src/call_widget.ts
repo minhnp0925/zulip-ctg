@@ -2,10 +2,10 @@ import $ from "jquery";
 
 import render_widgets_call_widget from "../templates/widgets/call_widget.hbs";
 
-import * as blueslip from "./blueslip"
-import * as compose_call from "./compose_call";
-import type {Message} from "./message_store";
-import * as people from "./people"
+import * as blueslip from "./blueslip.ts"
+import * as compose_call from "./compose_call.ts";
+import type {Message} from "./message_store.ts";
+import * as people from "./people.ts"
 
 declare class JitsiMeetExternalAPI {
     constructor(domain: string, options: {

@@ -1,6 +1,6 @@
 import $ from "jquery";
 
-import {realm} from "./state_data";
+import {realm} from "./state_data.ts";
 
 // # Minh: function to hide sidebar UI on setting event fired
 export function update_user_panel_button_display(): void {
